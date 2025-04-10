@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalhes da Política: {{ filename }}</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-break: break-word; /* Quebra palavras longas para evitar estouro */
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Firewall Viewer</h1>
+    <h2>Regras da Política: {{ filename }}</h2>
+    <p><a href="/" style="text-decoration: none;">Voltar para a lista de políticas</a></p>
+
+    {% if rules %}
+    <table>
+        <thead>
+            <tr>
+                <th>Rule Name</th>
+                <th>Action</th>
+                <th>Status</th>
+                <th>Source Interface</th>
+                <th>Destination Interface</th>
+                <th>Source Object</th>
+                <th>Source IP</th>
+                <th>Destination Object</th>
+                <th>Destination IP</th>
+                <th>Source Port</th>
+                <th>Destination Port</th>
+                <th>Logging</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rule in rules %}
+            <tr>
+                <td>{{ rule.name }}</td>
+                <td>{{ rule.action }}</td>
+                <td>
+                    {% if rule.enabled %}Enable{% else %}Disable{% endif %}
+                </td>
+                <td>
+                    {% if rule.sourceInterfaces and rule.sourceInterfaces|length > 0 %}
+                        {% for interface in rule.sourceInterfaces %}
+                            {{ interface.name }}<br>
+                        {% endfor %}
+                    {% else %}
+                        any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.destinationInterfaces and rule.destinationInterfaces|length > 0 %}
+                        {% for interface in rule.destinationInterfaces %}
+                            {{ interface.name }}<br>
+                        {% endfor %}
+                    {% else %}
+                        any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.sourceNetworks and rule.sourceNetworks.objects %}
+                        {% for source in rule.sourceNetworks.objects %}
+                            {{ source.name }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.source_ips %}
+                        {% for ip in rule.source_ips %}
+                            {{ ip }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.destinationNetworks and rule.destinationNetworks.objects %}
+                        {% for destination in rule.destinationNetworks.objects %}
+                            {{ destination.name }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.destination_ips %}
+                        {% for ip in rule.destination_ips %}
+                            {{ ip }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.sourcePorts and rule.sourcePorts.objects %}
+                        {% for port_object in rule.sourcePorts.objects %}
+                            {{ port_object.name }}<br>
+                        {% endfor %}
+                    {% else %}
+                        any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.destinationPorts and rule.destinationPorts.objects %}
+                        {% for port_object in rule.destinationPorts.objects %}
+                            {{ port_object.name }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Any
+                    {% endif %}
+                </td>
+                <td>
+                    {% if rule.logConfig and rule.logConfig.logEnabled %}Enable{% else %}Disable{% endif %}
+                </td>
+                <td>{{ rule.commentHistoryList[0].comment if rule.commentHistoryList and rule.commentHistoryList|length > 0 else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Nenhuma regra encontrada para esta política.</p>
+    {% endif %}
+</body>
+</html>

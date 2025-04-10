@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Políticas</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 80%;
+            max-width: 600px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        li a {
+            display: block;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        li a:hover {
+            background-color: #0056b3;
+        }
+        p a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        p a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Regras de Política</h1>
+    <ul>
+        {% for filename in policy_files %}
+        <li><a href="{{ url_for('show_policy', filename=filename) }}">{{ filename }}</a></li>
+        {% endfor %}
+    </ul>
+    <p><a href="{{ url_for('homepage') }}">Voltar para a página principal</a></p>
+</body>
+</html>

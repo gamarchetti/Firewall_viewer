@@ -131,8 +131,8 @@ def sync_data():
             # Construct absolute paths to the scripts
             script_dir = os.path.dirname(os.path.abspath(__file__))  # Get directory of app.py
             fp_acp_path = os.path.join(script_dir, "FP_ACP.py")
-            fp_do_path = os.path.join(script_dir, "FP_DynamicObjects.py")
-            fp_so_path = os.path.join(script_dir, "FP_StaticObjects.py")
+            fp_do_path = os.path.join(script_dir, "FP_DynamicObject.py")
+            fp_so_path = os.path.join(script_dir, "FP_StaticObject.py")
 
             # Get the current environment
             current_env = os.environ.copy()
@@ -152,12 +152,12 @@ def sync_data():
             
             # Execute FP_DynamicObjects.py with explicit environment
             subprocess.run(['python', fp_do_path], check=True, env=current_env)
-            print("FP_DynamicObjects.py concluído.")
+            print("FP_DynamicObject.py concluído.")
             #flash("Objetos dinâmicos sincronizados com sucesso!", 'success')
             
             # Execute FP_StaticObjects.py with explicit environment
             subprocess.run(['python', fp_so_path], check=True, env=current_env)
-            print("FP_StaticObjects.py concluído.")
+            print("FP_StaticObject.py concluído.")
             #flash("Objetos estáticos sincronizados com sucesso!", 'success')
             
             return jsonify({'status': 'success', 'message': 'Sincronização concluída com sucesso!'})

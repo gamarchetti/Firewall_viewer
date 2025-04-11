@@ -3,6 +3,8 @@ import json
 import os
 import subprocess
 import sys  # Import the sys module
+from FP_init import get_firepower_token, get_domain_uuid_once, create_config_file  # Importa as funções
+
 
 app = Flask(__name__)
 app.secret_key = "uma_chave_secreta"  # Necessário para o flash()
@@ -66,6 +68,19 @@ def get_dynamic_objects():
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
+
+@app.route('/add_firewall')
+def add_firewall():
+    return render_template('add_firewall.html')
+
+@app.route('/save_firewall', methods=['POST'])
+def save_firewall():
+    fmc_host = request.form['fmc_host']
+    fmc_username = request.form['fmc_username']
+    fmc_password = request.form['fmc_password']
+    create_config_file(fmc_host, fmc_username, fmc_password)
+    flash('Firewall added successfully!', 'success')
+    return redirect(url_for('homepage'))
 
 @app.route('/policies')
 def policies():

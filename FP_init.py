@@ -49,9 +49,6 @@ def get_firepower_token(fmc_host, fmc_username, fmc_password, verify_ssl):
         return None
 
 def create_config_file(fmc_host_input, fmc_username_input, fmc_password_input, verify_ssl=False):
-    """
-    Cria o arquivo config.py com as informações básicas do FMC e o domainUUID.
-    """
     # Remove o https:// caso o usuário tenha digitado
     fmc_host_without_prefix = fmc_host_input.replace("https://", "").replace("http://", "")
 
@@ -80,6 +77,7 @@ def create_config_file(fmc_host_input, fmc_username_input, fmc_password_input, v
         f.write(f"fmc_token = '{config_data['fmc_token']}'\n")
         f.write(f"token_generation_time = {config_data['token_generation_time']}\n")
     print("Arquivo config.py criado com as informações do FMC, UUID do domínio e token inicial.")
+
 
 # Obtém o diretório onde o script está localizado
 script_directory = os.path.dirname(os.path.abspath(__file__))

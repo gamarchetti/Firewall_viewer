@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Firewall</title>
+</head>
+<body>
+    <h1>Add Firewall</h1>
+    <form method="POST" action="{{ url_for('save_firewall') }}">
+        <label for="fmc_host">FMC IP/FQDN:</label><br>
+        <input type="text" id="fmc_host" name="fmc_host" required><br><br>
+        <label for="fmc_username">FMC Username:</label><br>
+        <input type="text" id="fmc_username" name="fmc_username" required><br><br>
+        <label for="fmc_password">FMC Password:</label><br>
+        <input type="password" id="fmc_password" name="fmc_password" required><br><br>
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>

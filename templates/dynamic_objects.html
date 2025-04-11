@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Objetos Dinâmicos</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Objetos Dinâmicos</h1>
+  {% if dynamic_objects %}
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>IPs</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in dynamic_objects %}
+      <tr>
+        <td>{{ obj.name }}</td>
+        <td>{% if obj.ips %}{{ ', '.join(obj.ips) }}{% else %}Sem IPs associados.{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  <a href="{{ url_for('homepage') }}">Voltar</a>
+</body>
+
+</html>

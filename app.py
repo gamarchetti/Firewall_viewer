@@ -48,6 +48,21 @@ def load_json_data(filepath):
         print(f"Erro ao decodificar JSON de: {filepath}")
         return None
 
+def get_dynamic_objects():
+    fp_do_path = os.path.join(DATA_FOLDER, 'FP_DO.json')
+    try:
+        with open(fp_do_path, 'r') as f:
+            data = json.load(f)
+            objects = []
+            for item in data:  # Itera diretamente sobre a lista 'data'
+                object_info = {'name': item['name'], 'ips': []}
+                if 'content' in item and isinstance(item['content'], list):
+                    object_info['ips'].extend(item['content'])
+                objects.append(object_info)
+            return objects
+    except FileNotFoundError:
+        return None
+
 @app.route('/')
 def homepage():
     return render_template('homepage.html')
@@ -197,5 +212,13 @@ def sync_data():
             flash("Erro: Um ou mais scripts de sincronização não foram encontrados.", 'error')
             return redirect(url_for('homepage'))
 
+@app.route('/dynamic_objects')
+def dynamic_objects():
+        dynamic_objects = get_dynamic_objects()
+        if dynamic_objects is None:
+            flash("Objetos dinâmicos ainda não foram sincronizados. Por favor, sincronize.", 'warning')
+            return redirect(url_for('homepage'))
+        return render_template('dynamic_objects.html', dynamic_objects=dynamic_objects)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port='443',debug=True)

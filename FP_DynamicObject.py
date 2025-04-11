@@ -94,11 +94,11 @@ def get_dynamic_objects_with_content():
 
 def save_to_json_file(filename, data):
     """
-    Salva os dados em um arquivo JSON no diretório do script.
+    Salva os dados em um arquivo JSON no diretório /data/.
     """
     try:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(script_dir, filename)
+        filepath = os.path.join(script_dir, 'data', filename)
         with open(filepath, "w") as f:
             json.dump(data, f, indent=4)
         print(f"Informações salvas em {filepath}")

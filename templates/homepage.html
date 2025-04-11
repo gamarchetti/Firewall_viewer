@@ -26,6 +26,7 @@
         <h1>Firewall Viewer</h1>
         <a href="{{ url_for('policies') }}" class="btn btn-primary">Ver Políticas</a>
         <button id="sync-button" class="btn btn-success ms-2">Sincronizar Dados</button>
+        <a href="{{ url_for('dynamic_objects') }}" class="btn btn-primary ms-2">Ver Objetos Dinâmicos</a>
         <div id="progress-message" class="progress-message hidden mt-3"></div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}

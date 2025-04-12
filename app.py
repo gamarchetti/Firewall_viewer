@@ -4,10 +4,12 @@ import os
 import subprocess
 import sys  # Import the sys module
 from FP_init import get_firepower_token, get_domain_uuid_once, create_config_file  # Importa as funções
+from flask_wtf.csrf import CSRFProtect  # Add this line
 
 
 app = Flask(__name__)
 app.secret_key = "uma_chave_secreta"  # Necessário para o flash()
+csrf = CSRFProtect(app)  # Add this line
 DATA_FOLDER = os.path.join(app.root_path, 'data')
 ACP_RULES_FOLDER = os.path.join(DATA_FOLDER, 'acp_rules')
 
@@ -56,14 +58,47 @@ def get_dynamic_objects():
         with open(fp_do_path, 'r') as f:
             data = json.load(f)
             objects = []
-            for item in data:  # Itera diretamente sobre a lista 'data'
-                object_info = {'name': item['name'], 'ips': []}
+            for item in data:
+                object_info = {'name': item['name'], 'ips': [], 'id': item['id']}  # Added 'id' here
                 if 'content' in item and isinstance(item['content'], list):
                     object_info['ips'].extend(item['content'])
                 objects.append(object_info)
             return objects
     except FileNotFoundError:
         return None
+    
+@app.route('/update_dynamic_object_ips', methods=['PUT'])
+def update_dynamic_object_ips():
+    data = request.get_json()
+    object_id = data.get('object_id')
+    ips_to_add = data.get('ips_to_add', [])
+    ips_to_remove = data.get('ips_to_remove', [])
+
+    if not object_id:
+        return jsonify({'status': 'error', 'message': 'Object ID is required'}), 400
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    fp_mapped_ip_path = os.path.join(script_dir, "FP_MappedIP.py")
+
+    output = ""  # Initialize an empty string to store the output
+
+    if ips_to_remove:
+        remove_command = ['python', fp_mapped_ip_path, object_id, 'remove', ','.join(ips_to_remove)]
+        try:
+            remove_result = subprocess.run(remove_command, capture_output=True, text=True, check=True)
+            output += f"Remove command output:\n{remove_result.stdout}\n"
+        except subprocess.CalledProcessError as e:
+            return jsonify({'status': 'error', 'message': f'Error removing IPs: {e.stderr}', 'output': e.stderr}), 500
+
+    if ips_to_add:
+        add_command = ['python', fp_mapped_ip_path, object_id, 'add', ','.join(ips_to_add)]
+        try:
+            add_result = subprocess.run(add_command, capture_output=True, text=True, check=True)
+            output += f"Add command output:\n{add_result.stdout}\n"
+        except subprocess.CalledProcessError as e:
+            return jsonify({'status': 'error', 'message': f'Error adding IPs: {e.stderr}', 'output': e.stderr}), 500
+
+    return jsonify({'status': 'success', 'message': 'IPs updated successfully', 'output': output})
 
 @app.route('/')
 def homepage():
@@ -229,11 +264,14 @@ def sync_data():
 
 @app.route('/dynamic_objects')
 def dynamic_objects():
+    with app.app_context():
         dynamic_objects = get_dynamic_objects()
         if dynamic_objects is None:
             flash("Objetos dinâmicos ainda não foram sincronizados. Por favor, sincronize.", 'warning')
             return redirect(url_for('homepage'))
-        return render_template('dynamic_objects.html', dynamic_objects=dynamic_objects)
+        return render_template('dynamic_objects.html', dynamic_objects=dynamic_objects, csrf=csrf)  # Change here: pass csrf object
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='443',debug=True)

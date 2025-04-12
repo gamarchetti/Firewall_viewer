@@ -6,6 +6,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-bottom: 20px;
     }
 
     th,
@@ -18,11 +19,49 @@
     th {
       background-color: #f2f2f2;
     }
+
+    .delete-icon {
+      color: red;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .ip-container {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
 <body>
   <h1>Objetos Dinâmicos</h1>
+  <form id="dynamic-object-form" method="PUT" action="/dynamic_objects">
+    <label for="dynamic-object-select">Selecione um Objeto Dinâmico:</label>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select id="dynamic-object-select" name="selected_object">
+      <option value="">-- Selecione um objeto --</option>
+      {% for obj in dynamic_objects %}
+      <option value="{{ obj.name }}">{{ obj.name }}</option>
+      {% endfor %}
+    </select>
+
+    <div id="ip-list-container" class="hidden">
+      <h2>IPs Atuais:</h2>
+      <div id="ip-list">
+      </div>
+    </div>
+
+    <div id="add-ip-container" class="hidden">
+      <label for="new-ips">Novos IPs (separados por vírgula):</label>
+      <input type="text" id="new-ips" name="new_ips">
+    </div>
+
+    <button type="button" id="save-button" name="action" value="save" class="hidden">Salvar</button>
+    <button type="button" id="cancel-button" name="action" value="cancel" class="hidden">Cancelar</button>
+  </form>
+
   {% if dynamic_objects %}
   <table>
     <thead>
@@ -40,8 +79,95 @@
       {% endfor %}
     </tbody>
   </table>
-  {% endif %}
+  {% endif %}  
+
   <a href="{{ url_for('homepage') }}">Voltar</a>
+
+  <script>
+    const objectSelect = document.getElementById('dynamic-object-select');
+    const ipListContainer = document.getElementById('ip-list-container');
+    const ipList = document.getElementById('ip-list');
+    const addIpContainer = document.getElementById('add-ip-container');
+    const saveButton = document.getElementById('save-button');
+    const cancelButton = document.getElementById('cancel-button');
+    let selectedObjectIps = [];
+    saveButton.removedIps = [];
+
+    objectSelect.addEventListener('change', () => {
+      const selectedObjectName = objectSelect.value;
+      saveButton.removedIps = [];
+
+      
+      if (selectedObjectName) {
+        ipList.innerHTML = '';
+        const selectedObject = {{ dynamic_objects|tojson }}.find(obj => obj.name === selectedObjectName);
+        selectedObjectIps = selectedObject.ips || [];
+        if (selectedObjectIps.length > 0) {
+          selectedObjectIps.forEach(ip => {
+            const ipDiv = document.createElement('div');
+            ipDiv.classList.add('ip-container');
+            ipDiv.textContent = ip;
+            const deleteIcon = document.createElement('span');
+            deleteIcon.classList.add('delete-icon');
+            deleteIcon.textContent = ' x';
+            deleteIcon.addEventListener('click', () => {
+              ipDiv.remove();
+              saveButton.removedIps.push(ip);
+
+               // Add to removedIps
+            });
+            ipDiv.appendChild(deleteIcon);
+            ipList.appendChild(ipDiv);
+          });
+        }
+        
+        ipListContainer.classList.remove('hidden');
+        addIpContainer.classList.remove('hidden');
+        saveButton.classList.remove('hidden');
+        cancelButton.classList.remove('hidden');
+      } else {
+        ipListContainer.classList.add('hidden');
+        addIpContainer.classList.add('hidden');
+      }
+    });
+
+    saveButton.addEventListener('click', function() {
+    console.log('Save button clicked!');
+    const selectedObjectName = objectSelect.value;
+    const selectedObject = {{ dynamic_objects|tojson }}.find(obj => obj.name === selectedObjectName);
+    const objectId = selectedObject.id;
+    const newIps = document.getElementById('new-ips').value.split(',').map(ip => ip.trim()).filter(ip => ip !== '');
+    const removedIps = saveButton.removedIps; // Access removedIps from saveButton
+
+    fetch('/update_dynamic_object_ips', {  // Changed to new endpoint
+        method: 'PUT',                   // Changed to PUT
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrf_token]').value, // Include CSRF token
+        },
+        body: JSON.stringify({          // Construct the payload
+            object_id: objectId,
+            ips_to_add: newIps,
+            ips_to_remove: removedIps,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log('IPs updated successfully:', data);
+            alert('IPs updated successfully!');
+            // Optionally, you can refresh the page or update the displayed IP list here.
+        } else {
+            console.error('Error updating IPs:', data);
+            alert('Error updating IPs: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error during the update:', error);
+        alert('An error occurred while updating IPs.');
+    });
+});
+  </script>
 </body>
 
 </html>

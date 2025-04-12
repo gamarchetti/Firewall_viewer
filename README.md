@@ -26,6 +26,7 @@ bash
 ```
 bash
     pip install Flask requests
+    pip install Flask-WTF
     
 ```
 ### Execution
@@ -78,6 +79,7 @@ bash
 ```
 bash
     pip install Flask requests
+    pip install Flask-WTF
     
 ```
 ### Execução
